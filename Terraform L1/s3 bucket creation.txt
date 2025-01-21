@@ -1,0 +1,55 @@
+
+
+provider "aws" {
+  region = "us-west-2"  # Specify the AWS region where you want to create the bucket
+}
+
+resource "aws_s3_bucket" "example_bucket" {
+  bucket = "my-unique-bucket-name-12345"  # The name must be globally unique
+  acl    = "private"  # Define the ACL for the bucket (private, public-read, etc.)
+
+  tags = {
+    Name        = "MyExampleS3Bucket"
+    Environment = "Production"
+  }
+}
+
+
+Advanced Configuration Options
+Here are a few more configuration options for your S3 bucket:
+
+Versioning: Enable versioning to keep multiple versions of the objects in the bucket.
+
+versioning {
+  enabled = true
+}
+
+
+Bucket Policy: Attach a bucket policy to control access to the bucket.
+
+
+policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::my-unique-bucket-name-12345/*"
+    }
+  ]
+}
+POLICY
+
+
+Server-Side Encryption: Enable server-side encryption for the objects in the bucket.
+
+
+server_side_encryption_configuration {
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}

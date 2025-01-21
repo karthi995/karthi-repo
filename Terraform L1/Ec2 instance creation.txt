@@ -1,0 +1,100 @@
+                                                       TERRAFORM SETUP TEST PROJECT
+
+Create a directory for your Terraform configuration:
+
+mkdir terraform-ec2
+cd terraform-ec2
+
+Create the main.tf file.
+
+provider "aws" {
+  
+             region = "us-west-2"  # Specify the AWS region you want to use
+
+              
+              }
+
+resource "aws_instance" "first-server" {
+    ami           = "ami-04902260ca3d33422"
+    instance_type = "t2.micro"
+tags = {
+    Name = "testserver"
+  }
+}
+
+SECURITY GROUP
+
+resouce "aws_security_group" "my-security-group" {
+  name ="usefull name"
+  vpc_id =aws_vpc.my-vpc.id   -->now we do not have vpc id so here we are referencing the vpc name as vpc id 
+
+ingress {
+     description =SSH
+     from_port   =22
+     to_port     =22
+     protocol    ="tcp"
+     cidr_blocks =["0.0.0.0/0"] --> it will allow all traffic
+   }
+
+ingress {
+     description =HTTP
+     from_port   =80
+     to_port     =80
+     protocol    ="tcp"
+     cidr_blocks =["0.0.0.0/0"] --> it will allow all traffic
+    }
+
+ingress {
+     description =HTTPS
+     from_port   =443
+     to_port     =443
+     protocol    ="tcp"
+     cidr_blocks =["0.0.0.0/0"] --> it will allow all traffic
+    }
+
+egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1" # Allow all protocols
+    cidr_blocks      = ["0.0.0.0/0"] --> it will allow all traffic
+  }
+
+  tags = {
+    Name = "allow_tls"
+  }
+}
+
+
+      
+
+VPC
+
+resource "aws_vpc" "my-vpc" {
+  cidr_block       = "10.0.0.0/16"
+  
+  tags = {
+    Name = "production"
+  }
+}
+
+SUBNET
+
+resource "aws_subnet" "my-subnet" {
+  vpc_id     = aws_vpc.my-vpc.id
+  cidr_block = "10.0.1.0/24"
+
+  tags = {
+    Name = "prod-subnet"
+  }
+}
+
+
+for executing commands while launching server
+
+user_data = <<-EOF
+           #!/bin/bash
+           sudo apt update -y
+           sudo apt install apache2 -y
+           sudo systemctl start apache2
+           sudo bash -c 'echo your first server > /var/www/html/index.html'
+           EOF 

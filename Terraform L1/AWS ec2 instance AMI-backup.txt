@@ -1,0 +1,20 @@
+provider "aws" {
+  region = "us-west-2"  # Specify your AWS region
+}
+
+# Create a snapshot of the EC2 instance
+resource "aws_ami" "example_backup_ami" {
+  name               = "example-backup-ami-${timestamp()}"
+  description        = "Backup of EC2 instance"
+  source_instance_id = "i-0abcdef1234567890"  # Replace with your EC2 instance ID
+  no_reboot          = true  # Do not reboot the instance before creating the image (optional)
+  tags = {
+    Name = "example-backup-ami"
+  }
+}
+
+
+
+Delete the AMI with Terraform:
+
+You can delete the AMI by removing the resource from your Terraform configuration and running terraform apply again.

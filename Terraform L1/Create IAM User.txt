@@ -1,0 +1,65 @@
+
+
+provider "aws" {
+  region = "us-west-2"  # Specify your AWS region
+}
+
+# Create IAM User
+resource "aws_iam_user" "example_user" {
+  name = "example-user"
+}
+
+# Attach a policy to the IAM user (e.g., AmazonS3ReadOnlyAccess)
+resource "aws_iam_user_policy_attachment" "example_user_policy_attachment" {
+  user       = aws_iam_user.example_user.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+}
+
+# (Optional) Create an access key for the IAM user
+resource "aws_iam_access_key" "example_user_access_key" {
+  user = aws_iam_user.example_user.name
+}
+
+# (Optional) Output the access key and secret access key
+output "access_key_id" {
+  value = aws_iam_access_key.example_user_access_key.id
+}
+
+output "secret_access_key" {
+  value = aws_iam_access_key.example_user_access_key.secret
+  sensitive = true  # Mark the secret as sensitive to avoid showing it in logs
+}
+
+
+
+
+resource "aws_iam_user" "example_user" {
+  name = "example-user"
+}
+
+resource "aws_iam_user_policy" "example_user_inline_policy" {
+  name   = "example-user-policy"
+  user   = aws_iam_user.example_user.name
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::example-bucket"
+    }
+  ]
+}
+POLICY
+}
+
+Inline Policies: Instead of attaching managed policies, you can define an inline policy directly within the aws_iam_user resource:
+
+Password Management:If you want the user to have a password for console access, you can define the aws_iam_user_login_profile resource
+
+resource "aws_iam_user_login_profile" "example_user_profile" {
+  user    = aws_iam_user.example_user.name
+  password = "SuperSecretPassword123"
+  password_reset_required = true
+}
